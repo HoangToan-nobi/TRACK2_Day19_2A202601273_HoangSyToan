@@ -182,10 +182,14 @@ else:
 # Đây là cơ chế chính để tránh training-serving skew (deck §6).
 
 # %%
+# Query timestamp per entity must be >= that user's own feature timestamp
+# (NOW - timedelta(hours=user_index % 48), see make_user_profile above) or PIT
+# correctly excludes the row as "feature from the future" — u_001's feature is
+# stamped NOW-1h, so querying at NOW-2h for it would silently drop the row.
 import pandas as pd
 entity_df = pd.DataFrame({
     "user_id": ["u_001", "u_002", "u_003"],
-    "event_timestamp": [NOW - timedelta(hours=2), NOW - timedelta(hours=1), NOW],
+    "event_timestamp": [NOW, NOW - timedelta(hours=1), NOW - timedelta(hours=2)],
 })
 
 historical = fs.get_historical_features(

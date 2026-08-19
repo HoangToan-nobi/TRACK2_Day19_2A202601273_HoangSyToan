@@ -1,0 +1,43 @@
+=== 04_feast_feature_store.ipynb — executed output ===
+
+Wrote 3 Parquet sources to /home/toan/Lab_AI_Track2/TRACK2_Day19_2A202601273_HoangSyToan/app/feast_repo/data
+  item_popularity.parquet  9.7 KB
+  query_velocity.parquet  2.3 KB
+  user_profile.parquet  2.8 KB
+
+STDOUT:
+No project found in the repository. Using project name lab19 defined in feature_store.yaml
+Applying changes for project lab19
+Created project lab19
+Created entity item
+Created entity user
+Created feature view user_profile_features
+Created feature view item_popularity_features
+Created feature view query_velocity_features
+
+Created sqlite table lab19_item_popularity_features
+Created sqlite table lab19_query_velocity_features
+Created sqlite table lab19_user_profile_features
+
+
+
+Materializing [1m[32m3[0m feature views to [1m[32m2026-08-19 15:07:18+00:00[0m into the [1m[32msqlite[0m online store.
+
+[1m[32muser_profile_features[0m from [1m[32m2026-07-20 15:07:23+00:00[0m to [1m[32m2026-08-19 15:07:18+00:00[0m:
+[1m[32mitem_popularity_features[0m from [1m[32m2026-08-18 15:07:23+00:00[0m to [1m[32m2026-08-19 15:07:18+00:00[0m:
+[1m[32mquery_velocity_features[0m from [1m[32m2026-08-19 14:07:23+00:00[0m to [1m[32m2026-08-19 15:07:18+00:00[0m:
+
+
+Single lookup: 6.54ms
+{'user_id': 'u_001', 'preferred_language': 'vi', 'reading_speed_wpm': 187, 'topic_affinity': 'cloud', 'distinct_topics_24h': 4, 'queries_last_hour': 11}
+
+Online lookup latency over 100 calls:
+  P50 = 0.12ms
+  P95 = 0.14ms
+  P99 = 0.55ms
+PASS — online lookup P99 < 10ms (0.55ms)
+
+  user_id           event_timestamp  reading_speed_wpm topic_affinity
+0   u_003 2026-08-19 13:07:18+00:00                201       database
+1   u_002 2026-08-19 14:07:18+00:00                194       security
+2   u_001 2026-08-19 15:07:18+00:00                187          cloud

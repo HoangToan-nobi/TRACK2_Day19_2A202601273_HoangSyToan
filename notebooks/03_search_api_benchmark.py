@@ -35,9 +35,12 @@ proc = subprocess.Popen(
     cwd=str(ROOT),
 )
 
-# Đợi server up + warm (Searcher.from_corpus loads embeddings + indexes 1000 docs)
+# Đợi server up + warm (Searcher.from_corpus loads embeddings + indexes 1000 docs).
+# 240s budget (not the 30s the comment above suggests) — under memory pressure
+# on a shared machine, first-run indexing has been observed to take 2-3 min.
 URL = "http://localhost:8000"
-for _ in range(60):
+READY_TIMEOUT_S = 240
+for _ in range(READY_TIMEOUT_S):
     try:
         r = httpx.get(f"{URL}/healthz", timeout=2.0)
         if r.status_code == 200 and r.json().get("ready"):
@@ -46,7 +49,7 @@ for _ in range(60):
         pass
     time.sleep(1)
 else:
-    raise RuntimeError("API didn't become ready within 60s")
+    raise RuntimeError(f"API didn't become ready within {READY_TIMEOUT_S}s")
 
 print(httpx.get(f"{URL}/healthz").json())
 
