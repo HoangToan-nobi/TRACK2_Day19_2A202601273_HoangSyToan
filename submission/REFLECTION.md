@@ -12,20 +12,24 @@
 > `paraphrase` / `mixed`), và tại sao? Khi nào bạn **không** dùng hybrid
 > (i.e. khi nào pure BM25 hoặc pure vector là lựa chọn đúng)?
 
-Trên corpus của tôi: `exact` BM25 và hybrid ngang nhau (96.7%), vector thấp
-hơn (88.7%) — từ khoá kỹ thuật xuất hiện verbatim nên BM25 đã đủ mạnh.
-`mixed` hybrid thắng rõ nhất (100% so với 97.0%/98.5%) vì RRF gộp được cả
-tín hiệu từ khoá lẫn tín hiệu ngữ nghĩa của hai vế câu hỏi. Bất ngờ nhất là
-`paraphrase`: lý thuyết vector phải thắng, nhưng thực đo BM25 (33.3%) lại
-nhỉnh hơn cả hybrid (32.0%) và vector (24.0%) — vì embedding mặc định của
-path lite (`bge-small-en`, huấn luyện tiếng Anh) yếu trên câu hỏi tiếng Việt
-diễn đạt lại. Đây đúng là "bẫy" mà notebook cảnh báo trước: đổi sang
-`bge-m3`/`multilingual` (path Docker) sẽ đảo ngược kết quả này.
+Trên 50 golden queries, Precision@10 tổng: BM25 77.8%, vector 73.2%, hybrid
+78.6% — hybrid thắng nhẹ nhờ **ổn định qua mọi loại**, không áp đảo riêng
+loại nào. Theo loại (n=số câu):
 
-Tôi sẽ **không** dùng hybrid khi: (1) query là tra cứu chính xác, latency
-cực thấp là ưu tiên số 1 — BM25 P50 chỉ 1-2ms so với hybrid ~30-50ms vì phải
-gọi thêm embedding; (2) ngân sách compute không đủ chạy model embedding
-(edge device) — lúc đó pure BM25 vẫn đủ dùng cho corpus có từ khoá rõ ràng.
+- **exact** (n=15): BM25 = hybrid = 96.7%, vector 88.7%. Từ khoá kỹ thuật
+  xuất hiện verbatim trong doc nên BM25 đã đủ mạnh.
+- **mixed** (n=20): hybrid 100% > vector 98.5% > BM25 97.0%. RRF (k=60) cộng
+  rank từ hai retriever nên câu hỏi ghép hai ý được phủ đủ cả hai vế — đúng
+  use-case hybrid sinh ra để giải quyết.
+- **paraphrase** (n=15): BM25 33.3% > hybrid 32.0% > vector 24.0% — **ngược
+  lý thuyết**. Nguyên nhân: embedding mặc định path lite (`bge-small-en`,
+  huấn luyện tiếng Anh) yếu trên câu Việt diễn đạt lại. Đổi `bge-m3` (path
+  Docker) sẽ đảo ngược kết quả.
+
+Tôi **không** dùng hybrid khi: (1) cần tra cứu chính xác, latency cực thấp —
+BM25 P50 chỉ 1-2ms so với hybrid ~35-50ms (đo ở NB3) vì phải gọi thêm
+embedding; (2) corpus paraphrase-nặng nhưng **đã có** embedding hợp ngôn
+ngữ — pure vector đủ tốt, tránh chi phí BM25 + RRF thừa.
 
 ---
 
